@@ -1,65 +1,85 @@
-const form = document.getElementById("weatherForm");
-const cityInput = document.getElementById("cityInput");
+const weatherApiKey = "d8a721fc13c95d47d690d471d17a9c18";
+const unsplashAccessKey = "CyFmFekOFFNf-N3GYDAjmIfC3FL8NCLZOOsa94MlZvM";
 
-const cityname = document.getElementById("cityname");
-const temp = document.getElementById("temp");
-const wind_speed = document.getElementById("wind_speed");
-const description = document.getElementById("description");
-const icon = document.getElementById("icon");
+function getWeatherByCity() {
+  const city = document.getElementById("cityInput").value.trim();
+  if (!city) return alert("Please enter a city name.");
 
-// Weather code mapping
-function getWeatherInfo(code) {
-  if (code === 0) return { text: "Clear Sky", icon: "☀️" };
-  if (code <= 3) return { text: "Partly Cloudy", icon: "⛅" };
-  if (code <= 48) return { text: "Fog", icon: "🌫" };
-  if (code <= 67) return { text: "Rain", icon: "🌧" };
-  if (code <= 77) return { text: "Snow", icon: "❄️" };
-  if (code <= 99) return { text: "Thunderstorm", icon: "⛈" };
-  return { text: "Unknown", icon: "❓" };
+  fetchWeather(city);
+  fetchForecast(city);
+  setBackground(city);
 }
 
-// Get weather using lat & lon
-function getWeather(lat, lon, city) {
-  fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`)
+// Weather
+function fetchWeather(city) {
+  fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${weatherApiKey}&units=metric`)
+    .then(res => res.json())
+    .then(showWeather)
+    .catch(() => alert("Error fetching weather"));
+}
+
+function showWeather(data) {
+  const icon = data.weather[0].icon;
+  const desc = data.weather[0].description;
+  const temp = data.main.temp;
+  const name = data.name;
+
+  document.getElementById("weather").innerHTML = `
+    <h2>${name}</h2>
+    <img src="https://openweathermap.org/img/wn/${icon}@2x.png" />
+    <p>${desc}</p>
+    <p>${temp}°C</p>
+  `;
+}
+
+// Forecast
+function fetchForecast(city) {
+  fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${weatherApiKey}&units=metric`)
+    .then(res => res.json())
+    .then(showForecast);
+}
+
+function showForecast(data) {
+  const forecastDiv = document.getElementById("forecast");
+  forecastDiv.innerHTML = "<h3>5-Day Forecast</h3>";
+
+  const daily = data.list.filter(item => item.dt_txt.includes("12:00:00"));
+
+  daily.forEach(day => {
+    const date = new Date(day.dt_txt).toDateString();
+    const icon = day.weather[0].icon;
+    const temp = day.main.temp;
+
+    forecastDiv.innerHTML += `
+      <div class="forecast-day">
+        <p>${date}</p>
+        <img src="https://openweathermap.org/img/wn/${icon}.png" />
+        <p>${temp}°C</p>
+      </div>
+    `;
+  });
+}
+
+// Background Image
+function setBackground(city) {
+  fetch(`https://api.unsplash.com/photos/random?query=${city}&client_id=${unsplashAccessKey}`)
     .then(res => res.json())
     .then(data => {
-      const weather = data.current_weather;
-
-      const info = getWeatherInfo(weather.weathercode);
-
-      cityname.innerHTML = city;
-      temp.innerHTML = weather.temperature + " °C";
-      wind_speed.innerHTML = weather.windspeed + " km/h";
-      description.innerHTML = info.text;
-      icon.innerHTML = info.icon;
-    })
-    .catch(() => alert("Weather not found"));
+      document.body.style.backgroundImage = `url(${data.urls.full})`;
+    });
 }
 
-// Convert city name → lat/lon
-function getCityCoordinates(city) {
-  fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${city}&count=1`)
-    .then(res => res.json())
-    .then(data => {
-      if (!data.results) {
-        alert("City not found");
-        return;
-      }
+document.addEventListener("DOMContentLoaded", () => {
 
-      const lat = data.results[0].latitude;
-      const lon = data.results[0].longitude;
+  document.getElementById("cityInput").addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      getWeatherByCity();
+    }
+  });
 
-      getWeather(lat, lon, city);
-    })
-    .catch(() => alert("Error finding city"));
-}
+  const defaultCity = "Mangalore";
+  fetchWeather(defaultCity);
+  fetchForecast(defaultCity);
+  setBackground(defaultCity);
 
-// Form submit
-form.addEventListener("submit", function (e) {
-  e.preventDefault();
-  const city = cityInput.value;
-  getCityCoordinates(city);
 });
-
-// Default city
-getCityCoordinates("Delhi");

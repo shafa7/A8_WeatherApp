@@ -1,0 +1,116 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: background-image 0.4s ease-in-out;
+  color: white;
+  min-height: 100vh;
+}
+
+.container {
+  padding: 20px;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.55);
+  max-width: 450px;
+  margin: 40px auto;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+}
+
+h1 {
+  margin-bottom: 15px;
+}
+
+.search {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.search input {
+  padding: 10px;
+  width: 65%;
+  font-size: 16px;
+  border-radius: 20px;
+  border: none;
+  outline: none;
+}
+
+button {
+  padding: 10px 18px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 20px;
+  border: none;
+  background: #ff9800;
+  color: white;
+  font-weight: bold;
+}
+
+.weather-card {
+  padding: 20px;
+  border-radius: 15px;
+  margin-top: 20px;
+  background: rgba(255,255,255,0.2);
+}
+
+.weather-card img {
+  width: 90px;
+}
+
+.weather-card h2 {
+  margin: 5px 0;
+}
+
+
+.forecast h3 {
+  margin-bottom: 10px;
+}
+
+.forecast {
+  margin-top: 20px;
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  scroll-behavior: smooth;
+}
+
+/* hide scrollbar (optional, looks clean) */
+.forecast::-webkit-scrollbar {
+  height: 6px;
+}
+.forecast::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.4);
+  border-radius: 10px;
+}
+
+.forecast-day {
+  min-width: 120px;
+  flex-shrink: 0;
+  padding: 10px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 12px;
+  text-align: center;
+  color: white;
+}
+
+
+.forecast-day img {
+  width: 50px;
+}
+
+
+@media (max-width: 600px) {
+  .container {
+    margin: 20px;
+    padding: 15px;
+  }
+
+  .forecast-day {
+    min-width: 100px;
+    font-size: 14px;
+  }
+}
